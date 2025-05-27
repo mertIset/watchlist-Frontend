@@ -1,6 +1,12 @@
+<script setup lang="ts">
+import DynamicForm from '../components/DynamicForm.vue'
+import TheWelcome from "@/components/TheWelcome.vue";
+</script>
+
+
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <DynamicForm title="Meine Watchlist" />
   </div>
 </template>
 

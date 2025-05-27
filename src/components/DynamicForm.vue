@@ -1,5 +1,5 @@
 <template>
-  <div style="border: 2px solid red; padding: 20px; margin: 20px;">
+  <div style="border: 2px solid #1f1e1e; padding: 20px; margin: 20px;">
     <h3>{{ title }}</h3>
     <p><strong>Debug Info:</strong></p>
     <ul>
@@ -200,7 +200,7 @@ div:nth-of-type(2) {
 
 input, select {
   padding: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid #1f1e1e;
   border-radius: 4px;
 }
 

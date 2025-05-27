@@ -64,4 +64,3 @@ const watchlist: WatchlistEntry[] = [
   </WelcomeItem>
 </template>
 
-

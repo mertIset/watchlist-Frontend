@@ -5,11 +5,6 @@ import DynamicForm from '../components/DynamicForm.vue'
 
 <template>
   <main>
-    <!-- Zeige die DynamicForm Komponente an -->
-    <DynamicForm title="Meine Watchlist" />
-
-    <!-- Optional: Behalte auch TheWelcome bei -->
-    <hr style="margin: 2rem 0;">
     <TheWelcome />
   </main>
 </template>
