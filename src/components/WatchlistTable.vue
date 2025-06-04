@@ -117,21 +117,21 @@ table {
 }
 
 th, td {
-  border: 1px solid #ddd;
+  border: 1px solid #ffffff;
   padding: 8px;
   text-align: left;
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #1b1b1b;
 }
 
 tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: #1b1b1b;
 }
 
 tr:hover {
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.31);
 }
 
 button {
@@ -139,13 +139,13 @@ button {
   padding: 5px 15px;
   border: 1px solid blue;
   border-radius: 4px;
-  background-color: white;
+  background-color: #1b1b1b;
   cursor: pointer;
   margin: 0 5px;
 }
 
 button:hover {
-  background-color: #f0f0f0;
+  background-color: #ffffff;
 }
 
 .delete-btn {

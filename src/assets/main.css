@@ -28,8 +28,10 @@ a,
   }
 
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    /* ENTFERNT: display: grid und grid-template-columns */
+    /* Jetzt nimmt der Content die volle Breite ein */
+    width: 100%;
+    max-width: none; /* Keine Begrenzung der Breite */
+    padding: 0; /* Entfernen Sie das Padding für volle Breite */
   }
 }

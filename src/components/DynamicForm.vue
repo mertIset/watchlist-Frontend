@@ -1,6 +1,5 @@
 <template>
   <div style="border: 2px solid #1f1e1e; padding: 20px; margin: 20px;">
-    <h3>{{ title }}</h3>
     <p><strong>Erstellen Sie einen neuen Eintrag:</strong></p>
 
     <div>

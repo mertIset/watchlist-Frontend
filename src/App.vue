@@ -4,82 +4,166 @@ import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div class="app-container">
+    <!-- Header bleibt kompakt -->
+    <header class="app-header">
+      <div class="header-content">
+        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="60" height="60" />
 
-    <div class="wrapper">
-      <HelloWorld msg="Watchlist" />
+        <div class="header-info">
+          <HelloWorld msg="Watchlist" />
+        </div>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">Eintag erstellen</RouterLink>
-      </nav>
-    </div>
-  </header>
+        <nav class="main-nav">
+          <RouterLink to="/" class="nav-link">🏠 Home</RouterLink>
+          <RouterLink to="/about" class="nav-link">➕ Eintrag erstellen</RouterLink>
+        </nav>
+      </div>
+    </header>
 
-  <RouterView />
+    <!-- Main Content nimmt volle Breite -->
+    <main class="main-content">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Kompakter Header */
+.app-header {
+  width: 100%;
+  background: #000000; /* Schwarzer Hintergrund */
+  border-bottom: 2px solid #333333;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
 }
 
 .logo {
-  display: block;
-  margin: 0 auto 2rem;
+  flex-shrink: 0;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
+.header-info {
+  flex: 1;
   text-align: center;
-  margin-top: 2rem;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+/* Navigation rechts */
+.main-nav {
+  display: flex;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
+.nav-link {
   display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+  padding: 0.5rem 1rem;
+  border: 2px solid #333333;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #ffffff; /* Weiße Schrift auf schwarzem Hintergrund */
+  transition: all 0.3s;
+  font-weight: 500;
 }
 
-nav a:first-of-type {
-  border: 0;
+.nav-link:hover {
+  background-color: rgba(255, 0, 0, 0.2);
+  border-color: #ff0000;
+  color: #ff0000;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+.nav-link.router-link-exact-active {
+  background-color: #ff0000;
+  color: white;
+  border-color: #ff0000;
+}
+
+/* Main Content - VOLLE BREITE */
+.main-content {
+  flex: 1;
+  width: 100%;
+  /* Kein max-width, kein margin - volle Breite! */
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .header-info {
+    order: 1;
   }
 
   .logo {
-    margin: 0 2rem 0 0;
+    order: 2;
+    width: 50px;
+    height: 50px;
   }
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
+  .main-nav {
+    order: 3;
+    justify-content: center;
     flex-wrap: wrap;
   }
+}
 
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 1rem;
+  }
 
-    padding: 1rem 0;
-    margin-top: 1rem;
+  .main-nav {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .nav-link {
+    flex: 1;
+    text-align: center;
+    min-width: 120px;
+  }
+}
+
+/* Override für HelloWorld component */
+:deep(.greetings h1) {
+  font-size: 1.8rem;
+  margin: 0;
+  color: #ffffff; /* Weiße Schrift für besseren Kontrast */
+}
+
+:deep(.greetings h3) {
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.8;
+  color: #cccccc; /* Hellgraue Schrift für den Untertitel */
+}
+
+@media (max-width: 1024px) {
+  :deep(.greetings h1),
+  :deep(.greetings h3) {
+    text-align: center;
   }
 }
 </style>
