@@ -1,12 +1,7 @@
 <template>
   <div style="border: 2px solid #1f1e1e; padding: 20px; margin: 20px;">
     <h3>{{ title }}</h3>
-    <p><strong>Debug Info:</strong></p>
-    <ul>
-      <li>Environment: {{ currentEnv }}</li>
-      <li>Backend URL: {{ backendUrl }}</li>
-      <li>Items loaded: {{ items.length }}</li>
-    </ul>
+    <p><strong>Erstellen Sie einen neuen Eintrag:</strong></p>
 
     <div>
       <input v-model="titleField" placeholder="Title" type="text">
