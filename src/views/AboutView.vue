@@ -1,12 +1,24 @@
 <script setup lang="ts">
+import {ref} from 'vue'
 import DynamicForm from '../components/DynamicForm.vue'
-import TheWelcome from "@/components/TheWelcome.vue";
-</script>
+import type {Watchlist} from '@/types'
 
+function handleItemsLoaded(items: Watchlist[]) {
+  console.log('Items loaded in AboutView:', items)
+}
+
+function handleItemAdded(item: Watchlist) {
+  console.log('Item added in AboutView:', item)
+}
+</script>
 
 <template>
   <div class="about">
-    <DynamicForm title="Meine Watchlist" />
+    <DynamicForm
+      title="Meine Watchlist"
+      @items-loaded="handleItemsLoaded"
+      @item-added="handleItemAdded"
+    />
   </div>
 </template>
 

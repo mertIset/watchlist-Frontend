@@ -20,56 +20,30 @@
       <button type="button" @click="save()">Save</button>
       <button type="button" @click="testBackend()">Test Backend</button>
     </div>
-
-    <div>
-      <table>
-        <thead>
-        <tr>
-          <th>Title</th>
-          <th>Type</th>
-          <th>Genre</th>
-          <th>Watched</th>
-          <th>Rating</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-if="items.length === 0">
-          <td colspan="5">No watchlist items yet</td>
-        </tr>
-        <tr v-for="item in items" :key="item.id">
-          <td>{{ item.title }}</td>
-          <td>{{ item.type }}</td>
-          <td>{{ item.genre }}</td>
-          <td>{{ item.watched ? 'Yes' : 'No' }}</td>
-          <td>{{ item.rating }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, computed} from 'vue'
+import {ref, onMounted} from 'vue'
 import axios from 'axios'
 import type {AxiosResponse} from 'axios'
 import type {Watchlist} from '@/types'
-import type {Ref} from 'vue'
 
 defineProps<{
   title: string
 }>()
 
-const items: Ref<Watchlist[]> = ref([])
+// Emit events für Kommunikation mit Parent Component
+const emit = defineEmits<{
+  itemAdded: [item: Watchlist]
+  itemsLoaded: [items: Watchlist[]]
+}>()
+
 const titleField = ref('')
 const typeField = ref('')
 const genreField = ref('')
 const watchedField = ref(false)
 const ratingField = ref(0)
-
-// Debug-Informationen
-const currentEnv = computed(() => import.meta.env.MODE)
-const backendUrl = computed(() => getBackendUrl())
 
 // Bestimme die korrekte Backend-URL
 const getBackendUrl = () => {
@@ -110,8 +84,10 @@ async function loadWatchlistItems() {
 
     const response: AxiosResponse = await axios.get(endpoint)
     const responseData: Watchlist[] = response.data
-    items.value = responseData
     console.log('✅ Successfully loaded items:', responseData)
+
+    // Emit items to parent
+    emit('itemsLoaded', responseData)
   } catch (error) {
     console.error('❌ Error loading watchlist items:', error)
 
@@ -124,9 +100,10 @@ async function loadWatchlistItems() {
     }
 
     // Fallback für Demo
-    items.value = [
+    const fallbackItems = [
       { id: 999, title: 'Fallback Movie (Backend nicht erreichbar)', type: 'Movie', genre: 'Demo', watched: false, rating: 0 }
     ]
+    emit('itemsLoaded', fallbackItems)
   }
 }
 
@@ -158,7 +135,8 @@ async function save() {
     watchedField.value = false
     ratingField.value = 0
 
-    // Reload items
+    // Emit new item to parent and reload items
+    emit('itemAdded', responseData)
     await loadWatchlistItems()
 
   } catch (error) {
@@ -171,6 +149,11 @@ async function save() {
     }
   }
 }
+
+// Expose loadWatchlistItems function to parent
+defineExpose({
+  loadWatchlistItems
+})
 
 // Lifecycle hooks
 onMounted(async () => {
@@ -205,26 +188,10 @@ label {
   gap: 5px;
 }
 
-table {
-  margin-left: auto;
-  margin-right: auto;
-  border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
 button {
-  color: blue;
+  color: #ff0000;
   padding: 5px 15px;
-  border: 1px solid blue;
+  border: 1px solid #ff0000;
   border-radius: 4px;
   background-color: white;
   cursor: pointer;
