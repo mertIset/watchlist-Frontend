@@ -1,15 +1,4 @@
-// src/types/index.ts
-export interface Watchlist {
-  id?: number;
-  title: string;
-  type: string;
-  genre: string;
-  watched: boolean;
-  rating: number;
-  userId?: number; // Referenz zum User
-}
-
-// Authentication types auch hier verfügbar machen
+// src/types/auth.ts
 export interface User {
   id: number;
   username: string;

@@ -1,22 +1,29 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { useAuth } from '@/stores/auth'
 import HelloWorld from './components/HelloWorld.vue'
+
+const { isAuthenticated, currentUser } = useAuth()
 </script>
 
 <template>
   <div class="app-container">
-    <!-- Header bleibt kompakt -->
-    <header class="app-header">
+    <!-- Header nur anzeigen wenn eingeloggt -->
+    <header v-if="isAuthenticated" class="app-header">
       <div class="header-content">
         <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="60" height="60" />
 
         <div class="header-info">
           <HelloWorld msg="Watchlist" />
+          <div class="user-welcome">
+            Willkommen, {{ currentUser?.firstName }}!
+          </div>
         </div>
 
         <nav class="main-nav">
           <RouterLink to="/" class="nav-link">🏠 Home</RouterLink>
           <RouterLink to="/about" class="nav-link">➕ Eintrag erstellen</RouterLink>
+          <RouterLink to="/account" class="nav-link">👤 Account</RouterLink>
         </nav>
       </div>
     </header>
@@ -65,6 +72,13 @@ import HelloWorld from './components/HelloWorld.vue'
 .header-info {
   flex: 1;
   text-align: center;
+}
+
+.user-welcome {
+  color: #cccccc;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  opacity: 0.8;
 }
 
 /* Navigation rechts */
@@ -142,7 +156,9 @@ import HelloWorld from './components/HelloWorld.vue'
   .nav-link {
     flex: 1;
     text-align: center;
-    min-width: 120px;
+    min-width: 100px;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
   }
 }
 

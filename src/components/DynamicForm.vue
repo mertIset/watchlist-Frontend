@@ -27,10 +27,14 @@ import {ref, onMounted} from 'vue'
 import axios from 'axios'
 import type {AxiosResponse} from 'axios'
 import type {Watchlist} from '@/types'
+import { useAuth } from '@/stores/auth'
 
 defineProps<{
   title: string
 }>()
+
+// Use authentication store
+const { currentUser } = useAuth()
 
 // Emit events für Kommunikation mit Parent Component
 const emit = defineEmits<{
@@ -61,7 +65,14 @@ const getBackendUrl = () => {
 async function testBackend() {
   console.log('Testing backend connection...')
   const baseUrl = getBackendUrl()
-  const endpoint = `${baseUrl}/Watchlist`
+  const userId = currentUser.value?.id
+
+  if (!userId) {
+    alert('Benutzer nicht eingeloggt!')
+    return
+  }
+
+  const endpoint = `${baseUrl}/Watchlist?userId=${userId}`
 
   try {
     console.log('Making request to:', endpoint)
@@ -78,7 +89,14 @@ async function loadWatchlistItems() {
   try {
     console.log('=== Loading Watchlist Items ===')
     const baseUrl = getBackendUrl()
-    const endpoint = `${baseUrl}/Watchlist`
+    const userId = currentUser.value?.id
+
+    if (!userId) {
+      console.error('❌ No user logged in')
+      return
+    }
+
+    const endpoint = `${baseUrl}/Watchlist?userId=${userId}`
     console.log('Loading items from:', endpoint)
 
     const response: AxiosResponse = await axios.get(endpoint)
@@ -110,14 +128,22 @@ async function save() {
   try {
     console.log('=== Saving Watchlist Item ===')
     const baseUrl = getBackendUrl()
+    const userId = currentUser.value?.id
+
+    if (!userId) {
+      alert('Benutzer nicht eingeloggt!')
+      return
+    }
+
     const endpoint = `${baseUrl}/Watchlist`
 
-    const data: Omit<Watchlist, 'id'> = {
+    const data = {
       title: titleField.value,
       type: typeField.value,
       genre: genreField.value,
       watched: watchedField.value,
-      rating: ratingField.value
+      rating: ratingField.value,
+      userId: userId
     }
 
     console.log('Saving data to:', endpoint)

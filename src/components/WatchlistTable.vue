@@ -42,6 +42,7 @@
 import {ref} from 'vue'
 import axios from 'axios'
 import type {Watchlist} from '@/types'
+import { useAuth } from '@/stores/auth'
 
 defineProps<{
   items: Watchlist[]
@@ -51,6 +52,7 @@ const emit = defineEmits<{
   itemDeleted: [id: number]
 }>()
 
+const { currentUser } = useAuth()
 const deleting = ref<number | null>(null)
 
 // Bestimme die korrekte Backend-URL
@@ -68,6 +70,12 @@ async function deleteItem(item: Watchlist) {
     return
   }
 
+  const userId = currentUser.value?.id
+  if (!userId) {
+    alert('Benutzer nicht eingeloggt!')
+    return
+  }
+
   if (!confirm(`Are you sure you want to delete "${item.title}"?`)) {
     return
   }
@@ -76,7 +84,7 @@ async function deleteItem(item: Watchlist) {
     deleting.value = item.id
     console.log('=== Deleting Watchlist Item ===')
     const baseUrl = getBackendUrl()
-    const endpoint = `${baseUrl}/Watchlist/${item.id}`
+    const endpoint = `${baseUrl}/Watchlist/${item.id}?userId=${userId}`
 
     console.log('Deleting item from:', endpoint)
 
