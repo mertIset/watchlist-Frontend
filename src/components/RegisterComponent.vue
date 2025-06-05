@@ -2,7 +2,6 @@
   <div class="register-container">
     <div class="register-card">
       <div class="register-header">
-        <h1>🎬 Watchlist</h1>
         <h2>Registrieren</h2>
         <p>Erstellen Sie Ihr kostenloses Konto für Ihre persönliche Watchlist</p>
       </div>

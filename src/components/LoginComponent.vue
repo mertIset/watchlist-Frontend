@@ -2,7 +2,6 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h1>🎬 Watchlist</h1>
         <h2>Anmelden</h2>
         <p>Melden Sie sich an, um Ihre persönliche Watchlist zu verwalten</p>
       </div>
