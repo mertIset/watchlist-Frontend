@@ -6,9 +6,9 @@
       <input v-model="titleField" placeholder="Title" type="text">
       <select v-model="typeField">
         <option value="">Select Type</option>
-        <option value="Movie">Movie</option>
-        <option value="TV Show">TV Show</option>
-        <option value="Documentary">Documentary</option>
+        <option value="Film">Film</option>
+        <option value="Serie">Serie</option>
+        <option value="Dokumentation">Dokumentation</option>
         <option value="Anime">Anime</option>
       </select>
       <input v-model="genreField" placeholder="Genre" type="text">
