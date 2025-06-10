@@ -16,7 +16,7 @@ const { isAuthenticated, currentUser } = useAuth()
         <div class="header-info">
           <HelloWorld msg="Watchlist" />
           <div class="user-welcome">
-            Willkommen, {{ currentUser?.firstName }}!
+            Hallo, {{ currentUser?.firstName }}!
           </div>
         </div>
 

@@ -147,7 +147,7 @@
         <h2>🔐 Sicherheit</h2>
         <p>Melden Sie sich ab, wenn Sie fertig sind.</p>
         <button @click="handleLogout" class="logout-btn">
-          🚪 Abmelden
+          Abmelden
         </button>
       </div>
     </div>

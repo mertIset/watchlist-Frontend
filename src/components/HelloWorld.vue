@@ -8,7 +8,7 @@ defineProps<{
   <div class="greetings">
     <h1 class="green">{{ msg }}</h1>
     <h3>
-      Willkommen zu deiner persönlichen Watchlist für Filme und Serien!
+      Willkommen,zu deiner persönlichen Watchlist!
     </h3>
   </div>
 </template>
