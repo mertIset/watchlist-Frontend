@@ -1,23 +1,122 @@
 <template>
-  <div style="border: 2px solid #1f1e1e; padding: 20px; margin: 20px;">
-    <p><strong>Erstellen Sie einen neuen Eintrag:</strong></p>
+  <div class="form-container">
+    <div class="form-header">
+      <h1>➕ Neuen Eintrag erstellen</h1>
+      <p>Fügen Sie einen Film, eine Serie oder Dokumentation zu Ihrer persönlichen Watchlist hinzu</p>
+    </div>
 
-    <div>
-      <input v-model="titleField" placeholder="Title" type="text">
-      <select v-model="typeField">
-        <option value="">Select Type</option>
-        <option value="Film">Film</option>
-        <option value="Serie">Serie</option>
-        <option value="Dokumentation">Dokumentation</option>
-        <option value="Anime">Anime</option>
-      </select>
-      <input v-model="genreField" placeholder="Genre" type="text">
-      <label>
-        <input v-model="watchedField" type="checkbox"> Watched
-      </label>
-      <input v-model="ratingField" placeholder="Rating (1-10)" type="number" min="1" max="10">
-      <button type="button" @click="save()">Save</button>
-      <button type="button" @click="testBackend()">Test Backend</button>
+    <div class="form-content">
+      <!-- Form Section -->
+      <div class="form-section">
+        <form @submit.prevent="save" class="entry-form">
+          <div class="form-grid">
+            <!-- Title Input -->
+            <div class="form-group full-width">
+              <label for="title" class="form-label">Titel</label>
+              <input
+                id="title"
+                v-model="titleField"
+                type="text"
+                class="form-input"
+                placeholder="z.B. Inception, Breaking Bad, Planet Earth..."
+                required
+                :disabled="saving"
+              />
+            </div>
+
+            <!-- Type and Genre Row -->
+            <div class="form-group">
+              <label for="type" class="form-label">Kategorie</label>
+              <select
+                id="type"
+                v-model="typeField"
+                class="form-select"
+                required
+                :disabled="saving"
+              >
+                <option value="" disabled>Kategorie wählen</option>
+                <option value="Film">Film</option>
+                <option value="Serie">Serie</option>
+                <option value="Dokumentation">Dokumentation</option>
+                <option value="Anime">Anime</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="genre" class="form-label">Genre</label>
+              <input
+                id="genre"
+                v-model="genreField"
+                type="text"
+                class="form-input"
+                placeholder="z.B. Action, Drama, Komödie..."
+                :disabled="saving"
+              />
+            </div>
+
+            <!-- Watched and Rating Row -->
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <div class="checkbox-container">
+                <input
+                  id="watched"
+                  v-model="watchedField"
+                  type="checkbox"
+                  class="form-checkbox"
+                  :disabled="saving"
+                />
+                <label for="watched" class="checkbox-label">
+                  <span class="checkbox-custom"></span>
+                  Bereits gesehen
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="rating" class="form-label">Bewertung</label>
+              <div class="rating-container">
+                <input
+                  id="rating"
+                  v-model="ratingField"
+                  type="number"
+                  min="1"
+                  max="10"
+                  class="form-input rating-input"
+                  placeholder="1-10"
+                  :disabled="saving"
+                />
+                <span class="rating-suffix">/ 10</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              :disabled="saving"
+            >
+              {{ saving ? 'Speichern...' : 'Eintrag speichern' }}
+            </button>
+
+            <button
+              type="button"
+              @click="testBackend"
+              class="btn btn-secondary"
+              :disabled="saving"
+            >
+              Backend testen
+            </button>
+          </div>
+
+          <!-- Status Messages -->
+          <div v-if="statusMessage" class="status-message" :class="statusType">
+            <span class="status-icon">{{ statusType === 'success' ? '✅' : '❌' }}</span>
+            {{ statusMessage }}
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -47,6 +146,9 @@ const typeField = ref('')
 const genreField = ref('')
 const watchedField = ref(false)
 const ratingField = ref(0)
+const saving = ref(false)
+const statusMessage = ref('')
+const statusType = ref<'success' | 'error'>('success')
 
 // Bestimme die korrekte Backend-URL
 const getBackendUrl = () => {
@@ -62,13 +164,22 @@ const getBackendUrl = () => {
   return url
 }
 
+const showStatus = (message: string, type: 'success' | 'error') => {
+  statusMessage.value = message
+  statusType.value = type
+
+  setTimeout(() => {
+    statusMessage.value = ''
+  }, 5000)
+}
+
 async function testBackend() {
   console.log('Testing backend connection...')
   const baseUrl = getBackendUrl()
   const userId = currentUser.value?.id
 
   if (!userId) {
-    alert('Benutzer nicht eingeloggt!')
+    showStatus('Benutzer nicht eingeloggt!', 'error')
     return
   }
 
@@ -78,10 +189,10 @@ async function testBackend() {
     console.log('Making request to:', endpoint)
     const response = await axios.get(endpoint)
     console.log('Backend response:', response)
-    alert(`Backend erreichbar! ${response.data.length} Items gefunden.`)
+    showStatus(`Backend erreichbar! ${response.data.length} Items gefunden.`, 'success')
   } catch (error) {
     console.error('Backend connection failed:', error)
-    alert(`Backend nicht erreichbar: ${error}`)
+    showStatus(`Backend nicht erreichbar: ${error}`, 'error')
   }
 }
 
@@ -125,13 +236,20 @@ async function loadWatchlistItems() {
 }
 
 async function save() {
+  if (!titleField.value || !typeField.value) {
+    showStatus('Bitte füllen Sie mindestens Titel und Kategorie aus.', 'error')
+    return
+  }
+
+  saving.value = true
+
   try {
     console.log('=== Saving Watchlist Item ===')
     const baseUrl = getBackendUrl()
     const userId = currentUser.value?.id
 
     if (!userId) {
-      alert('Benutzer nicht eingeloggt!')
+      showStatus('Benutzer nicht eingeloggt!', 'error')
       return
     }
 
@@ -160,6 +278,9 @@ async function save() {
     watchedField.value = false
     ratingField.value = 0
 
+    // Show success message
+    showStatus('Eintrag erfolgreich erstellt!', 'success')
+
     // Emit new item to parent and reload items
     emit('itemAdded', responseData)
     await loadWatchlistItems()
@@ -172,6 +293,10 @@ async function save() {
       console.error('Status Text:', error.response?.statusText)
       console.error('Response Data:', error.response?.data)
     }
+
+    showStatus('Fehler beim Speichern des Eintrags.', 'error')
+  } finally {
+    saving.value = false
   }
 }
 
@@ -188,42 +313,306 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-h3 {
+.form-container {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  min-height: 100vh;
+  background: var(--color-background);
+  padding: 2rem;
+  padding-top: 6rem; /* Platz für den fixierten Header */
+}
+
+.form-header {
   text-align: center;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-div:nth-of-type(2) {
+.form-header h1 {
+  font-size: 3rem;
+  color: var(--color-heading);
+  margin-bottom: 1rem;
+  background: linear-gradient(45deg, #ff0000, #cc0000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.form-header p {
+  font-size: 1.2rem;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.form-content {
+  max-width: 1000px;
+  margin: 0 auto;
   display: flex;
-  gap: 10px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 3rem;
 }
 
-input, select {
-  padding: 5px;
-  border: 1px solid #1f1e1e;
-  border-radius: 4px;
+.form-section,
+.info-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-label {
+.form-section h2,
+.info-section h2 {
+  font-size: 1.8rem;
+  color: var(--color-heading);
+  margin-bottom: 1.5rem;
+}
+
+.entry-form {
+  width: 100%;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-weight: bold;
+  color: var(--color-heading);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input,
+.form-select {
+  padding: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0);
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-input:disabled,
+.form-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-select option {
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+/* Rating Input */
+.rating-container {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 5px;
 }
 
-button {
-  color: #ff0000;
-  padding: 5px 15px;
-  border: 1px solid #ff0000;
-  border-radius: 4px;
-  background-color: white;
+.rating-input {
+  padding-right: 3rem;
+}
+
+.rating-suffix {
+  position: absolute;
+  right: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  pointer-events: none;
+}
+
+/* Custom Checkbox */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 0;
+}
+
+.form-checkbox {
+  display: none;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
   cursor: pointer;
-  margin: 0 5px;
+  font-size: 1rem;
+  color: var(--color-text);
+  font-weight: 500;
+  user-select: none;
 }
 
-button:hover {
-  background-color: #f0f0f0;
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.form-checkbox:checked + .checkbox-label .checkbox-custom {
+  background: linear-gradient(45deg, #ff0000, #cc0000);
+  border-color: #ff0000;
+}
+
+.form-checkbox:checked + .checkbox-label .checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Action Buttons */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #ff0000, #cc0000);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(45deg, #cc0000, #990000);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.69);
+}
+
+/* Status Messages */
+.status-message {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.status-message.success {
+  background: rgba(0, 255, 0, 0.2);
+  border: 1px solid #00ff00;
+  color: #00ff00;
+}
+
+.status-message.error {
+  background: rgba(255, 0, 0, 0.2);
+  border: 1px solid #ff0000;
+  color: #ff0000;
+}
+
+.status-icon {
+  font-size: 1.2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 1rem;
+    padding-top: 5rem;
+  }
+
+  .form-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-container {
+    padding-top: 4.5rem;
+  }
+
+  .form-header h1 {
+    font-size: 2rem;
+  }
+
+  .form-section,
+  .info-section {
+    padding: 1.5rem;
+  }
 }
 </style>
