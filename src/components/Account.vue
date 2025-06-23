@@ -44,7 +44,7 @@
           </div>
 
           <button @click="startEditing" class="edit-btn">
-            ✏️ Bearbeiten
+            Bearbeiten
           </button>
         </div>
 
@@ -86,10 +86,10 @@
 
             <div class="form-actions">
               <button type="submit" class="save-btn" :disabled="saving">
-                {{ saving ? 'Speichern...' : '💾 Speichern' }}
+                {{ saving ? 'Speichern...' : 'Speichern' }}
               </button>
               <button type="button" @click="cancelEditing" class="cancel-btn" :disabled="saving">
-                ❌ Abbrechen
+                Abbrechen
               </button>
             </div>
 
@@ -106,7 +106,7 @@
 
       <!-- Statistiken -->
       <div class="stats-section">
-        <h2>📊 Ihre Watchlist-Statistiken</h2>
+        <h2>Ihre Watchlist-Statistiken</h2>
 
         <div v-if="statsLoading" class="loading-stats">
           <p>Lade Statistiken...</p>
@@ -154,7 +154,7 @@
 
       <!-- Logout Bereich -->
       <div class="logout-section">
-        <h2>🔐 Sicherheit</h2>
+        <h2>Sicherheit</h2>
         <p>Melden Sie sich ab, wenn Sie fertig sind.</p>
         <button @click="handleLogout" class="logout-btn">
           Abmelden
@@ -353,6 +353,7 @@ onMounted(() => {
   min-height: 100vh;
   background: var(--color-background);
   padding: 2rem;
+  padding-top: 6rem; /* Platz für den fixierten Header */
 }
 
 .account-header {
@@ -635,6 +636,7 @@ onMounted(() => {
 @media (max-width: 768px) {
   .account-container {
     padding: 1rem;
+    padding-top: 5rem; /* Weniger Abstand auf Mobile */
   }
 
   .account-header h1 {
@@ -660,6 +662,10 @@ onMounted(() => {
 }
 
 @media (max-width: 480px) {
+  .account-container {
+    padding-top: 4.5rem; /* Noch weniger Abstand auf sehr kleinen Bildschirmen */
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
