@@ -8,6 +8,8 @@
     <div class="form-content">
       <!-- Form Section -->
       <div class="form-section">
+        <h2>📽️ Eintrag-Informationen</h2>
+
         <form @submit.prevent="save" class="entry-form">
           <div class="form-grid">
             <!-- Title Input -->
@@ -35,10 +37,10 @@
                 :disabled="saving"
               >
                 <option value="" disabled>Kategorie wählen</option>
-                <option value="Film">Film</option>
-                <option value="Serie">Serie</option>
-                <option value="Dokumentation">Dokumentation</option>
-                <option value="Anime">Anime</option>
+                <option value="Film">🎬 Film</option>
+                <option value="Serie">📺 Serie</option>
+                <option value="Dokumentation">📚 Dokumentation</option>
+                <option value="Anime">🎌 Anime</option>
               </select>
             </div>
 
@@ -97,7 +99,7 @@
               class="btn btn-primary"
               :disabled="saving"
             >
-              {{ saving ? 'Speichern...' : 'Eintrag speichern' }}
+              {{ saving ? 'Speichern...' : '💾 Eintrag speichern' }}
             </button>
 
             <button
@@ -106,7 +108,7 @@
               class="btn btn-secondary"
               :disabled="saving"
             >
-              Backend testen
+              🔧 Backend testen
             </button>
           </div>
 
@@ -116,6 +118,29 @@
             {{ statusMessage }}
           </div>
         </form>
+      </div>
+
+      <!-- Info Section -->
+      <div class="info-section">
+        <h2>ℹ️ Hinweise</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Titel:</label>
+            <span>Geben Sie den vollständigen Namen des Films oder der Serie ein</span>
+          </div>
+          <div class="info-item">
+            <label>Kategorie:</label>
+            <span>Wählen Sie die passende Kategorie für Ihren Eintrag</span>
+          </div>
+          <div class="info-item">
+            <label>Genre:</label>
+            <span>Optional - hilft bei der Organisation Ihrer Sammlung</span>
+          </div>
+          <div class="info-item">
+            <label>Bewertung:</label>
+            <span>Nur verfügbar für bereits gesehene Inhalte (1-10 Punkte)</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -321,7 +346,7 @@ onMounted(async () => {
   margin-left: -50vw;
   margin-right: -50vw;
   min-height: 100vh;
-  background: var(--color-background);
+  background: #000000; /* Komplett schwarz */
   padding: 2rem;
   padding-top: 6rem; /* Platz für den fixierten Header */
 }
@@ -407,7 +432,7 @@ onMounted(async () => {
   padding: 1rem;
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--color-text);
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -543,7 +568,7 @@ onMounted(async () => {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.69);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Status Messages */
@@ -571,6 +596,34 @@ onMounted(async () => {
 
 .status-icon {
   font-size: 1.2rem;
+}
+
+/* Info Section */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-item label {
+  font-weight: bold;
+  color: var(--color-heading);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item span {
+  color: var(--color-text);
+  font-size: 1rem;
+  opacity: 0.8;
+  line-height: 1.5;
 }
 
 /* Responsive Design */

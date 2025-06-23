@@ -4,9 +4,9 @@
   --vt-c-white-soft: #f8f8f8;
   --vt-c-white-mute: #f2f2f2;
 
-  --vt-c-black: #1f1e1e;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
+  --vt-c-black: #000000; /* Komplett schwarz */
+  --vt-c-black-soft: #000000; /* Komplett schwarz */
+  --vt-c-black-mute: #111111; /* Sehr dunkles Grau für Kontrast */
 
   --vt-c-indigo: #ffffff;
 
@@ -38,9 +38,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --color-background: var(--vt-c-black); /* Komplett schwarz */
+    --color-background-soft: var(--vt-c-black-soft); /* Komplett schwarz */
+    --color-background-mute: var(--vt-c-black-mute); /* Sehr dunkles Grau */
 
     --color-border: var(--vt-c-divider-dark-2);
     --color-border-hover: var(--vt-c-divider-dark-1);
@@ -61,7 +61,7 @@
 body {
   min-height: 100vh;
   color: var(--color-text);
-  background: var(--color-background);
+  background: #000000; /* Direkt schwarz gesetzt */
   transition:
     color 0.5s,
     background-color 0.5s;

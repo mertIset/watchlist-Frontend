@@ -35,7 +35,7 @@ function handleItemAdded(item: Watchlist) {
   margin-left: -50vw;
   margin-right: -50vw;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: #000000; /* Komplett schwarz */
   display: flex;
   align-items: center;
   justify-content: center;

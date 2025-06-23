@@ -58,6 +58,8 @@ onMounted(async () => {
     <!-- Watchlist Section -->
     <section id="watchlist-section" class="watchlist-section">
       <div class="watchlist-header">
+        <h1>Meine Watchlist</h1>
+        <p>Verwalten Sie Ihre persönliche Film- und Seriensammlung</p>
       </div>
 
       <!-- Hidden Form für Datenmanagement -->
@@ -90,7 +92,7 @@ onMounted(async () => {
   right: 50%;
   margin-left: -50vw; /* Zurück zur vollen Breite */
   margin-right: -50vw;
-  background: var(--color-background);
+  background: #000000; /* Komplett schwarz */
   padding-top: 0; /* Entfernt Padding oben für Header Overlay */
 }
 
@@ -140,7 +142,7 @@ onMounted(async () => {
 .watchlist-section {
   width: 100%;
   padding: 4rem 2rem 3rem;
-  background: var(--color-background);
+  background: #000000; /* Komplett schwarz */
   min-height: 100vh; /* Mindestens Vollbild-Höhe */
   position: relative;
   z-index: 2;
@@ -280,7 +282,7 @@ body {
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    var(--color-background) 100%
+    #000000 100% /* Komplett schwarz */
   );
   z-index: 1;
 }

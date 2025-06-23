@@ -122,24 +122,28 @@ table {
   border-collapse: collapse;
   width: 100%;
   max-width: 800px;
+  background: transparent; /* Transparenter Hintergrund */
 }
 
 th, td {
   border: 1px solid #ffffff;
   padding: 8px;
   text-align: left;
+  background: transparent; /* Transparenter Hintergrund */
 }
 
 th {
-  background-color: #1b1b1b;
+  background: transparent !important; /* Kein Hintergrund für Header */
+  font-weight: bold;
+  color: #ffffff;
 }
 
 tr:nth-child(even) {
-  background-color: #1b1b1b;
+  background: transparent; /* Kein alternierender Hintergrund */
 }
 
 tr:hover {
-  background-color: rgba(255, 255, 255, 0.31);
+  background: rgba(255, 255, 255, 0.1) !important; /* Subtiler Hover-Effekt */
 }
 
 button {
@@ -147,13 +151,13 @@ button {
   padding: 5px 15px;
   border: 1px solid blue;
   border-radius: 4px;
-  background-color: #1b1b1b;
+  background-color: transparent; /* Transparenter Button-Hintergrund */
   cursor: pointer;
   margin: 0 5px;
 }
 
 button:hover {
-  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1); /* Subtiler Hover für Buttons */
 }
 
 .delete-btn {
@@ -164,7 +168,7 @@ button:hover {
 }
 
 .delete-btn:hover {
-  background-color: #ffe6e6;
+  background-color: rgba(255, 0, 0, 0.1); /* Subtiler roter Hover */
 }
 
 .delete-btn:disabled {
@@ -173,6 +177,6 @@ button:hover {
 }
 
 .delete-btn:disabled:hover {
-  background-color: white;
+  background-color: transparent;
 }
 </style>
