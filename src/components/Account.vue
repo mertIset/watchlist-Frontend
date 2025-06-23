@@ -107,7 +107,17 @@
       <!-- Statistiken -->
       <div class="stats-section">
         <h2>📊 Ihre Watchlist-Statistiken</h2>
-        <div class="stats-grid">
+
+        <div v-if="statsLoading" class="loading-stats">
+          <p>Lade Statistiken...</p>
+        </div>
+
+        <div v-else-if="statsError" class="error-stats">
+          <p>{{ statsError }}</p>
+          <button @click="loadWatchlistStats" class="retry-btn">Erneut versuchen</button>
+        </div>
+
+        <div v-else class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">📽️</div>
             <div class="stat-info">
@@ -135,7 +145,7 @@
           <div class="stat-card">
             <div class="stat-icon">⭐</div>
             <div class="stat-info">
-              <h3>{{ watchlistStats.averageRating.toFixed(1) }}</h3>
+              <h3>{{ watchlistStats.averageRating }}</h3>
               <p>Ø Bewertung</p>
             </div>
           </div>
@@ -159,7 +169,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { AuthService } from '@/services/authService'
+import axios from 'axios'
 import type { UpdateUserRequest } from '@/types/auth'
+import type { Watchlist } from '@/types'
 
 const router = useRouter()
 const { currentUser: user, logout, updateUser } = useAuth()
@@ -175,13 +187,23 @@ const editForm = ref<UpdateUserRequest>({
   email: ''
 })
 
-// Mock watchlist stats - in einer echten App würden diese vom Backend kommen
+// Statistik-bezogene reactive variables
+const statsLoading = ref(false)
+const statsError = ref('')
 const watchlistStats = ref({
   total: 0,
   watched: 0,
   unwatched: 0,
-  averageRating: 0
+  averageRating: '0.0'
 })
+
+// Backend URL bestimmen
+const getBackendUrl = () => {
+  const isDevelopment = import.meta.env.MODE === 'development'
+  return isDevelopment
+    ? import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:8080'
+    : import.meta.env.VITE_BACKEND_BASE_URL || 'https://watchlist-backend-vb24.onrender.com'
+}
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return null
@@ -249,14 +271,69 @@ const handleLogout = () => {
   }
 }
 
-// Load watchlist stats (Mock-Daten)
-const loadWatchlistStats = () => {
-  // In einer echten App würden hier die echten Statistiken vom Backend geladen
-  watchlistStats.value = {
-    total: 15,
-    watched: 8,
-    unwatched: 7,
-    averageRating: 7.8
+// Echte Watchlist-Statistiken laden
+const loadWatchlistStats = async () => {
+  if (!user.value?.id) {
+    statsError.value = 'Benutzer nicht eingeloggt'
+    return
+  }
+
+  statsLoading.value = true
+  statsError.value = ''
+
+  try {
+    console.log('=== Loading Watchlist Statistics ===')
+    const baseUrl = getBackendUrl()
+    const userId = user.value.id
+    const endpoint = `${baseUrl}/Watchlist?userId=${userId}`
+
+    console.log('Loading stats from:', endpoint)
+
+    const response = await axios.get(endpoint)
+    const watchlistItems: Watchlist[] = response.data
+
+    console.log('✅ Successfully loaded watchlist items:', watchlistItems)
+
+    // Statistiken berechnen
+    const total = watchlistItems.length
+    const watched = watchlistItems.filter(item => item.watched).length
+    const unwatched = total - watched
+
+    // Durchschnittsbewertung nur von bewerteten und gesehenen Filmen berechnen
+    const ratedItems = watchlistItems.filter(item => item.watched && item.rating > 0)
+    const averageRating = ratedItems.length > 0
+      ? (ratedItems.reduce((sum, item) => sum + item.rating, 0) / ratedItems.length).toFixed(1)
+      : '0.0'
+
+    watchlistStats.value = {
+      total,
+      watched,
+      unwatched,
+      averageRating
+    }
+
+    console.log('📊 Calculated statistics:', watchlistStats.value)
+
+  } catch (error) {
+    console.error('❌ Error loading watchlist statistics:', error)
+
+    if (axios.isAxiosError(error)) {
+      console.error('Status:', error.response?.status)
+      console.error('Status Text:', error.response?.statusText)
+      console.error('Response Data:', error.response?.data)
+    }
+
+    statsError.value = 'Fehler beim Laden der Statistiken'
+
+    // Fallback auf leere Statistiken
+    watchlistStats.value = {
+      total: 0,
+      watched: 0,
+      unwatched: 0,
+      averageRating: '0.0'
+    }
+  } finally {
+    statsLoading.value = false
   }
 }
 
@@ -374,6 +451,33 @@ onMounted(() => {
   width: 100%;
 }
 
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-weight: bold;
+  color: var(--color-heading);
+}
+
+.form-group input {
+  padding: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
 .form-actions {
   display: flex;
   gap: 1rem;
@@ -433,6 +537,34 @@ onMounted(() => {
   padding: 1rem;
   border-radius: 8px;
   margin-top: 1rem;
+}
+
+.loading-stats {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.error-stats {
+  text-align: center;
+  padding: 2rem;
+  color: #ff0000;
+}
+
+.retry-btn {
+  background: linear-gradient(45deg, #ff0000, #cc0000);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: linear-gradient(45deg, #cc0000, #990000);
 }
 
 .stats-grid {
@@ -532,31 +664,4 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
-</style>-group {
-display: flex;
-flex-direction: column;
-gap: 0.5rem;
-margin-bottom: 1.5rem;
-}
-
-.form-group label {
-font-weight: bold;
-color: var(--color-heading);
-}
-
-.form-group input {
-padding: 1rem;
-border: 2px solid rgba(255, 255, 255, 0.2);
-border-radius: 8px;
-background: rgba(255, 255, 255, 0.1);
-color: var(--color-text);
-font-size: 1rem;
-}
-
-.form-group input:focus {
-outline: none;
-border-color: #ff0000;
-box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-}
-
-.form
+</style>
