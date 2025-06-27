@@ -1,14 +1,9 @@
 <template>
   <div class="form-container">
-    <div class="form-header">
-      <h1>➕ Neuen Eintrag erstellen</h1>
-      <p>Fügen Sie einen Film, eine Serie oder Dokumentation zu Ihrer persönlichen Watchlist hinzu</p>
-    </div>
-
     <div class="form-content">
       <!-- Form Section -->
       <div class="form-section">
-        <h2>📽️ Eintrag-Informationen</h2>
+        <h2>Eintrag erstellen</h2>
 
         <form @submit.prevent="save" class="entry-form">
           <div class="form-grid">
@@ -37,10 +32,10 @@
                 :disabled="saving"
               >
                 <option value="" disabled>Kategorie wählen</option>
-                <option value="Film">🎬 Film</option>
-                <option value="Serie">📺 Serie</option>
-                <option value="Dokumentation">📚 Dokumentation</option>
-                <option value="Anime">🎌 Anime</option>
+                <option value="Film">Film</option>
+                <option value="Serie">Serie</option>
+                <option value="Dokumentation">Dokumentation</option>
+                <option value="Anime">Anime</option>
               </select>
             </div>
 
@@ -99,17 +94,9 @@
               class="btn btn-primary"
               :disabled="saving"
             >
-              {{ saving ? 'Speichern...' : '💾 Eintrag speichern' }}
+              {{ saving ? 'Speichern...' : 'Eintrag speichern' }}
             </button>
 
-            <button
-              type="button"
-              @click="testBackend"
-              class="btn btn-secondary"
-              :disabled="saving"
-            >
-              🔧 Backend testen
-            </button>
           </div>
 
           <!-- Status Messages -->
@@ -122,7 +109,7 @@
 
       <!-- Info Section -->
       <div class="info-section">
-        <h2>ℹ️ Hinweise</h2>
+        <h2>Hinweise</h2>
         <div class="info-grid">
           <div class="info-item">
             <label>Titel:</label>

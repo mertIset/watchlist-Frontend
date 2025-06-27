@@ -6,7 +6,7 @@
         class="refresh-all-btn"
         :disabled="refreshingAll"
       >
-        {{ refreshingAll ? 'Cover werden aktualisiert...' : '🔄 Alle Cover aktualisieren' }}
+        {{ refreshingAll ? 'Cover werden aktualisiert...' : 'Alle Cover aktualisieren' }}
       </button>
     </div>
 
@@ -44,15 +44,6 @@
                 <span class="no-cover-text">Kein Cover</span>
               </div>
 
-              <!-- Refresh Button für einzelnes Cover -->
-              <button
-                @click="refreshSinglePoster(item)"
-                class="refresh-single-btn"
-                :disabled="refreshingSingle === item.id"
-                title="Cover aktualisieren"
-              >
-                {{ refreshingSingle === item.id ? '⏳' : '🔄' }}
-              </button>
             </div>
           </td>
 
@@ -61,15 +52,11 @@
             <strong>{{ item.title }}</strong>
           </td>
           <td class="type-cell">
-              <span class="type-badge" :class="getTypeBadgeClass(item.type)">
-                {{ getTypeIcon(item.type) }} {{ item.type }}
-              </span>
+            <strong>{{ item.type}}</strong>
           </td>
           <td>{{ item.genre || 'Unbekannt' }}</td>
           <td class="watched-cell">
-              <span class="status-badge" :class="item.watched ? 'watched' : 'unwatched'">
-                {{ item.watched ? '✅ Ja' : '⏳ Nein' }}
-              </span>
+            <strong>{{ item.watched ? 'Ja' : 'Nein' }}</strong>
           </td>
           <td class="rating-cell">
             <div v-if="item.watched && item.rating > 0" class="rating-display">
@@ -314,11 +301,11 @@ function getStarRating(rating: number) {
 }
 
 .refresh-all-btn {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.49), rgba(255, 255, 255, 0.47));
   color: white;
-  border: none;
+  border: white;
   padding: 0.8rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -513,9 +500,9 @@ function getStarRating(rating: number) {
 }
 
 .status-badge.watched {
-  background: rgba(40, 167, 69, 0.2);
-  color: #28a745;
-  border: 1px solid rgba(40, 167, 69, 0.3);
+  background: rgba(108, 117, 125, 0.2);
+  color: #6c757d;
+  border: 1px solid rgba(108, 117, 125, 0.3);
 }
 
 .status-badge.unwatched {

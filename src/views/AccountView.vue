@@ -1,10 +1,5 @@
 <template>
   <div class="account-container">
-    <div class="account-header">
-      <h1>👤 Mein Account</h1>
-      <p>Verwalten Sie Ihre Kontoinformationen</p>
-    </div>
-
     <div class="account-content">
       <!-- Benutzerinformationen -->
       <div class="info-section">
@@ -44,7 +39,7 @@
           </div>
 
           <button @click="startEditing" class="edit-btn">
-            ✏️ Bearbeiten
+            Bearbeiten
           </button>
         </div>
 
@@ -86,10 +81,10 @@
 
             <div class="form-actions">
               <button type="submit" class="save-btn" :disabled="saving">
-                {{ saving ? 'Speichern...' : '💾 Speichern' }}
+                {{ saving ? 'Speichern...' : 'Speichern' }}
               </button>
               <button type="button" @click="cancelEditing" class="cancel-btn" :disabled="saving">
-                ❌ Abbrechen
+                Abbrechen
               </button>
             </div>
 
@@ -154,7 +149,7 @@
 
       <!-- Logout Bereich -->
       <div class="logout-section">
-        <h2>🔐 Sicherheit</h2>
+        <h2>Sicherheit</h2>
         <p>Melden Sie sich ab, wenn Sie fertig sind.</p>
         <button @click="handleLogout" class="logout-btn">
           Abmelden
