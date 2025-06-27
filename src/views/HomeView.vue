@@ -43,8 +43,8 @@ onMounted(async () => {
       <!-- YouTube Player Container - Vollbild -->
       <div class="video-container-fullscreen">
         <iframe
-          :src="`https://www.youtube.com/embed/videoseries?list=${youtubePlaylistId}&autoplay=1&controls=1&modestbranding=1&rel=0&mute=1&loop=1`"
-          title="YouTube Playlist - Automatisch abspielend"
+          :src="`https://www.youtube.com/embed/videoseries?list=${youtubePlaylistId}&autoplay=1&controls=0&modestbranding=1&rel=0&mute=1&loop=1&showinfo=0&fs=0&cc_load_policy=0&iv_load_policy=3&disablekb=1&playsinline=1`"
+          title="YouTube Playlist - Clean Video"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen>
@@ -58,7 +58,6 @@ onMounted(async () => {
     <!-- Watchlist Section -->
     <section id="watchlist-section" class="watchlist-section">
       <div class="watchlist-header">
-        <h1>Meine Watchlist</h1>
         <p>Verwalten Sie Ihre persönliche Film- und Seriensammlung</p>
       </div>
 
@@ -114,11 +113,16 @@ onMounted(async () => {
 
 .video-container-fullscreen iframe {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  left: 50%;
+  /* Noch aggressivere Skalierung - garantiert keine schwarzen Balken */
+  width: 150vw;
+  height: 150vh;
+  min-width: 150vw;
+  min-height: 150vh;
+  transform: translate(-50%, -50%);
   object-fit: cover;
+  pointer-events: auto; /* Erlaubt Interaktion mit dem Video falls gewünscht */
 }
 
 /* Subtiler Overlay für bessere Header-Lesbarkeit */

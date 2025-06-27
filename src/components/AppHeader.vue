@@ -128,17 +128,9 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-/* Header über Video - Glasmorphism Effekt mit Gradient */
+/* Header über Video - Komplett transparent */
 .app-header.over-video {
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0.3) 40%,
-    rgba(0, 0, 0, 0.1) 80%,
-    transparent 100%
-  );
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: transparent;
   border-bottom: none; /* Entfernt die Kante */
   box-shadow: none; /* Entfernt den Schatten für nahtlosen Übergang */
 }
