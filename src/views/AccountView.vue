@@ -1,5 +1,10 @@
 <template>
   <div class="account-container">
+    <div class="account-header">
+      <h1>👤 Mein Account</h1>
+      <p>Verwalten Sie Ihre Kontoinformationen</p>
+    </div>
+
     <div class="account-content">
       <!-- Benutzerinformationen -->
       <div class="info-section">
@@ -99,54 +104,6 @@
         </div>
       </div>
 
-      <!-- Statistiken -->
-      <div class="stats-section">
-        <h2>📊 Ihre Watchlist-Statistiken</h2>
-
-        <div v-if="statsLoading" class="loading-stats">
-          <p>Lade Statistiken...</p>
-        </div>
-
-        <div v-else-if="statsError" class="error-stats">
-          <p>{{ statsError }}</p>
-          <button @click="loadWatchlistStats" class="retry-btn">Erneut versuchen</button>
-        </div>
-
-        <div v-else class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">📽️</div>
-            <div class="stat-info">
-              <h3>{{ watchlistStats.total }}</h3>
-              <p>Einträge gesamt</p>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-info">
-              <h3>{{ watchlistStats.watched }}</h3>
-              <p>Gesehen</p>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">⏳</div>
-            <div class="stat-info">
-              <h3>{{ watchlistStats.unwatched }}</h3>
-              <p>Noch zu sehen</p>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">⭐</div>
-            <div class="stat-info">
-              <h3>{{ watchlistStats.averageRating }}</h3>
-              <p>Ø Bewertung</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Logout Bereich -->
       <div class="logout-section">
         <h2>Sicherheit</h2>
@@ -160,13 +117,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { AuthService } from '@/services/authService'
-import axios from 'axios'
 import type { UpdateUserRequest } from '@/types/auth'
-import type { Watchlist } from '@/types'
 
 const router = useRouter()
 const { currentUser: user, logout, updateUser } = useAuth()
@@ -181,24 +136,6 @@ const editForm = ref<UpdateUserRequest>({
   lastName: '',
   email: ''
 })
-
-// Statistik-bezogene reactive variables
-const statsLoading = ref(false)
-const statsError = ref('')
-const watchlistStats = ref({
-  total: 0,
-  watched: 0,
-  unwatched: 0,
-  averageRating: '0.0'
-})
-
-// Backend URL bestimmen
-const getBackendUrl = () => {
-  const isDevelopment = import.meta.env.MODE === 'development'
-  return isDevelopment
-    ? import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:8080'
-    : import.meta.env.VITE_BACKEND_BASE_URL || 'https://watchlist-backend-vb24.onrender.com'
-}
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return null
@@ -265,76 +202,6 @@ const handleLogout = () => {
     router.push('/login')
   }
 }
-
-// Echte Watchlist-Statistiken laden
-const loadWatchlistStats = async () => {
-  if (!user.value?.id) {
-    statsError.value = 'Benutzer nicht eingeloggt'
-    return
-  }
-
-  statsLoading.value = true
-  statsError.value = ''
-
-  try {
-    console.log('=== Loading Watchlist Statistics ===')
-    const baseUrl = getBackendUrl()
-    const userId = user.value.id
-    const endpoint = `${baseUrl}/Watchlist?userId=${userId}`
-
-    console.log('Loading stats from:', endpoint)
-
-    const response = await axios.get(endpoint)
-    const watchlistItems: Watchlist[] = response.data
-
-    console.log('✅ Successfully loaded watchlist items:', watchlistItems)
-
-    // Statistiken berechnen
-    const total = watchlistItems.length
-    const watched = watchlistItems.filter(item => item.watched).length
-    const unwatched = total - watched
-
-    // Durchschnittsbewertung nur von bewerteten und gesehenen Filmen berechnen
-    const ratedItems = watchlistItems.filter(item => item.watched && item.rating > 0)
-    const averageRating = ratedItems.length > 0
-      ? (ratedItems.reduce((sum, item) => sum + item.rating, 0) / ratedItems.length).toFixed(1)
-      : '0.0'
-
-    watchlistStats.value = {
-      total,
-      watched,
-      unwatched,
-      averageRating
-    }
-
-    console.log('📊 Calculated statistics:', watchlistStats.value)
-
-  } catch (error) {
-    console.error('❌ Error loading watchlist statistics:', error)
-
-    if (axios.isAxiosError(error)) {
-      console.error('Status:', error.response?.status)
-      console.error('Status Text:', error.response?.statusText)
-      console.error('Response Data:', error.response?.data)
-    }
-
-    statsError.value = 'Fehler beim Laden der Statistiken'
-
-    // Fallback auf leere Statistiken
-    watchlistStats.value = {
-      total: 0,
-      watched: 0,
-      unwatched: 0,
-      averageRating: '0.0'
-    }
-  } finally {
-    statsLoading.value = false
-  }
-}
-
-onMounted(() => {
-  loadWatchlistStats()
-})
 </script>
 
 <style scoped>
@@ -346,7 +213,7 @@ onMounted(() => {
   margin-left: -50vw;
   margin-right: -50vw;
   min-height: 100vh;
-  background: #000000; /* Komplett schwarz */
+  background: var(--color-background);
   padding: 2rem;
   padding-top: 6rem; /* Platz für den fixierten Header */
 }
@@ -384,7 +251,6 @@ onMounted(() => {
 }
 
 .info-section,
-.stats-section,
 .logout-section {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 15px;
@@ -393,7 +259,6 @@ onMounted(() => {
 }
 
 .info-section h2,
-.stats-section h2,
 .logout-section h2 {
   font-size: 1.8rem;
   color: var(--color-heading);
@@ -535,71 +400,6 @@ onMounted(() => {
   margin-top: 1rem;
 }
 
-.loading-stats {
-  text-align: center;
-  padding: 2rem;
-  color: var(--color-text);
-  opacity: 0.8;
-}
-
-.error-stats {
-  text-align: center;
-  padding: 2rem;
-  color: #ff0000;
-}
-
-.retry-btn {
-  background: linear-gradient(45deg, #ff0000, #cc0000);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: all 0.3s ease;
-}
-
-.retry-btn:hover {
-  background: linear-gradient(45deg, #cc0000, #990000);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-.stat-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  transition: transform 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-  opacity: 0.8;
-}
-
-.stat-info h3 {
-  font-size: 2rem;
-  color: var(--color-heading);
-  margin: 0;
-}
-
-.stat-info p {
-  color: var(--color-text);
-  margin: 0;
-  opacity: 0.8;
-}
-
 .logout-section {
   text-align: center;
 }
@@ -642,10 +442,6 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .form-actions {
     flex-direction: column;
   }
@@ -659,10 +455,6 @@ onMounted(() => {
 @media (max-width: 480px) {
   .account-container {
     padding-top: 4.5rem; /* Noch weniger Abstand auf sehr kleinen Bildschirmen */
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
   }
 }
 </style>

@@ -4,20 +4,43 @@ import WatchlistTable from '../components/WatchlistTable.vue'
 import DynamicForm from '../components/DynamicForm.vue'
 import type {Watchlist} from '@/types'
 import type {Ref} from 'vue'
+import { useAuth } from '@/stores/auth'
+import axios from 'axios'
 
+const { currentUser } = useAuth()
 const watchlistItems: Ref<Watchlist[]> = ref([])
 const dynamicFormRef = ref<InstanceType<typeof DynamicForm> | null>(null)
+
+// Statistik-bezogene reactive variables
+const statsLoading = ref(false)
+const statsError = ref('')
+const watchlistStats = ref({
+  total: 0,
+  watched: 0,
+  unwatched: 0,
+  averageRating: '0.0'
+})
 
 // YouTube Playlist Configuration
 const youtubePlaylistId = ref('PLHj9uMZo6puv11aV1kjbL0kq9hY_f7zHj')
 const showYouTubePlayer = ref(true) // Always show - no toggle needed
 
+// Backend URL bestimmen
+const getBackendUrl = () => {
+  const isDevelopment = import.meta.env.MODE === 'development'
+  return isDevelopment
+    ? import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:8080'
+    : import.meta.env.VITE_BACKEND_BASE_URL || 'https://watchlist-backend-vb24.onrender.com'
+}
+
 function handleItemsLoaded(items: Watchlist[]) {
   watchlistItems.value = items
+  calculateStats(items)
 }
 
 function handleItemAdded(item: Watchlist) {
   console.log('New item added:', item)
+  loadWatchlistStats() // Statistiken neu laden
 }
 
 async function handleItemDeleted(deletedId: number) {
@@ -27,10 +50,98 @@ async function handleItemDeleted(deletedId: number) {
   if (dynamicFormRef.value) {
     await dynamicFormRef.value.loadWatchlistItems()
   }
+
+  // Statistiken nach Löschung neu berechnen
+  calculateStats(watchlistItems.value)
+}
+
+function handleItemUpdated(updatedItem: Watchlist) {
+  console.log('Item updated:', updatedItem)
+
+  // Finde und aktualisiere das Item in der Liste
+  const index = watchlistItems.value.findIndex(item => item.id === updatedItem.id)
+  if (index !== -1) {
+    watchlistItems.value[index] = updatedItem
+
+    // Statistiken nach Update neu berechnen
+    calculateStats(watchlistItems.value)
+  }
+}
+
+// Watchlist-Statistiken laden
+const loadWatchlistStats = async () => {
+  if (!currentUser.value?.id) {
+    statsError.value = 'Benutzer nicht eingeloggt'
+    return
+  }
+
+  statsLoading.value = true
+  statsError.value = ''
+
+  try {
+    console.log('=== Loading Watchlist Statistics ===')
+    const baseUrl = getBackendUrl()
+    const userId = currentUser.value.id
+    const endpoint = `${baseUrl}/Watchlist?userId=${userId}`
+
+    console.log('Loading stats from:', endpoint)
+
+    const response = await axios.get(endpoint)
+    const watchlistItemsData: Watchlist[] = response.data
+
+    console.log('✅ Successfully loaded watchlist items:', watchlistItemsData)
+
+    // Statistiken berechnen
+    calculateStats(watchlistItemsData)
+    watchlistItems.value = watchlistItemsData
+
+    console.log('📊 Calculated statistics:', watchlistStats.value)
+
+  } catch (error) {
+    console.error('❌ Error loading watchlist statistics:', error)
+
+    if (axios.isAxiosError(error)) {
+      console.error('Status:', error.response?.status)
+      console.error('Status Text:', error.response?.statusText)
+      console.error('Response Data:', error.response?.data)
+    }
+
+    statsError.value = 'Fehler beim Laden der Statistiken'
+
+    // Fallback auf leere Statistiken
+    watchlistStats.value = {
+      total: 0,
+      watched: 0,
+      unwatched: 0,
+      averageRating: '0.0'
+    }
+  } finally {
+    statsLoading.value = false
+  }
+}
+
+const calculateStats = (items: Watchlist[]) => {
+  const total = items.length
+  const watched = items.filter(item => item.watched).length
+  const unwatched = total - watched
+
+  // Durchschnittsbewertung nur von bewerteten und gesehenen Filmen berechnen
+  const ratedItems = items.filter(item => item.watched && item.rating > 0)
+  const averageRating = ratedItems.length > 0
+    ? (ratedItems.reduce((sum, item) => sum + item.rating, 0) / ratedItems.length).toFixed(1)
+    : '0.0'
+
+  watchlistStats.value = {
+    total,
+    watched,
+    unwatched,
+    averageRating
+  }
 }
 
 onMounted(async () => {
   console.log('HomeView mounted')
+  await loadWatchlistStats()
 })
 </script>
 
@@ -75,8 +186,58 @@ onMounted(async () => {
         <WatchlistTable
           :items="watchlistItems"
           @item-deleted="handleItemDeleted"
+          @item-updated="handleItemUpdated"
         />
       </div>
+
+      <!-- Statistiken Section - NEU HINZUGEFÜGT -->
+      <div class="stats-section">
+        <h2>📊 Ihre Watchlist-Statistiken</h2>
+
+        <div v-if="statsLoading" class="loading-stats">
+          <p>Lade Statistiken...</p>
+        </div>
+
+        <div v-else-if="statsError" class="error-stats">
+          <p>{{ statsError }}</p>
+          <button @click="loadWatchlistStats" class="retry-btn">Erneut versuchen</button>
+        </div>
+
+        <div v-else class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📽️</div>
+            <div class="stat-info">
+              <h3>{{ watchlistStats.total }}</h3>
+              <p>Einträge gesamt</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <h3>{{ watchlistStats.watched }}</h3>
+              <p>Gesehen</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-info">
+              <h3>{{ watchlistStats.unwatched }}</h3>
+              <p>Noch zu sehen</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-info">
+              <h3>{{ watchlistStats.averageRating }}</h3>
+              <p>Ø Bewertung</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
   </div>
@@ -182,7 +343,89 @@ onMounted(async () => {
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
-  /* Entfernt: background, border-radius, padding, backdrop-filter, border, box-shadow */
+  margin-bottom: 3rem; /* Abstand zu den Statistiken */
+}
+
+/* Statistiken Section - NEU */
+.stats-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stats-section h2 {
+  font-size: 1.8rem;
+  color: var(--color-heading);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.loading-stats {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.error-stats {
+  text-align: center;
+  padding: 2rem;
+  color: #ff0000;
+}
+
+.retry-btn {
+  background: linear-gradient(45deg, #ff0000, #cc0000);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: linear-gradient(45deg, #cc0000, #990000);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  opacity: 0.8;
+}
+
+.stat-info h3 {
+  font-size: 2rem;
+  color: var(--color-heading);
+  margin: 0;
+}
+
+.stat-info p {
+  color: var(--color-text);
+  margin: 0;
+  opacity: 0.8;
 }
 
 /* Überschreibung für volle Tabellenbreite */
@@ -223,8 +466,8 @@ onMounted(async () => {
     font-size: 1.1rem;
   }
 
-  .table-wrapper {
-    /* Entfernt: padding */
+  .stats-section {
+    margin: 0 1rem;
   }
 }
 
@@ -241,8 +484,13 @@ onMounted(async () => {
     font-size: 1rem;
   }
 
-  .table-wrapper {
-    /* Entfernt: padding */
+  .stats-section {
+    padding: 1.5rem;
+    margin: 0 0.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   /* YouTube Section bleibt Vollbild auch auf Mobile */
@@ -262,6 +510,15 @@ onMounted(async () => {
 
   .video-overlay {
     height: 80px; /* Kleinerer Overlay für dünneren Header auf Mobile */
+  }
+
+  .stats-section {
+    padding: 1rem;
+    margin: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 }
 
