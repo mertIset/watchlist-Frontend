@@ -6,6 +6,7 @@ export interface Watchlist {
   genre: string;
   watched: boolean;
   rating: number;
+  posterUrl?: string; // Neu: Cover-URL vom OMDb Service
   userId?: number; // Referenz zum User
 }
 
