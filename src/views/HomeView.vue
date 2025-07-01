@@ -168,10 +168,6 @@ onMounted(async () => {
 
     <!-- Watchlist Section -->
     <section id="watchlist-section" class="watchlist-section">
-      <div class="watchlist-header">
-        <p>Verwalten Sie Ihre persönliche Film- und Seriensammlung</p>
-      </div>
-
       <!-- Hidden Form für Datenmanagement -->
       <DynamicForm
         ref="dynamicFormRef"
